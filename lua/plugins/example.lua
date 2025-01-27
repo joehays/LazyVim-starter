@@ -9,6 +9,7 @@ if true then return {} end
 -- * disable/enabled LazyVim plugins
 -- * override the configuration of LazyVim plugins
 return {
+  --[[
   -- add gruvbox
   { "ellisonleao/gruvbox.nvim" },
 
@@ -19,6 +20,7 @@ return {
       colorscheme = "gruvbox",
     },
   },
+  ]]
 
   -- change trouble config
   {
@@ -63,6 +65,7 @@ return {
     },
   },
 
+  --[[
   -- add pyright to lspconfig
   {
     "neovim/nvim-lspconfig",
@@ -110,14 +113,17 @@ return {
       },
     },
   },
+  ]]
 
   -- for typescript, LazyVim also includes extra specs to properly setup lspconfig,
   -- treesitter, mason and typescript.nvim. So instead of the above, you can use:
   { import = "lazyvim.plugins.extras.lang.typescript" },
 
+  --[[
   -- add more treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
     opts = {
       ensure_installed = {
         "bash",
@@ -152,18 +158,104 @@ return {
     end,
   },
 
-  -- the opts function can also be used to change the default opts:
+  ]]
+
+  -- Confugre Python LSP
   {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    opts = function(_, opts)
-      table.insert(opts.sections.lualine_x, {
-        function()
-          return "😄"
-        end,
+    "neovim/nvim-lspconfig",
+    config = function()
+      require("lspconfig").pylsp.setup({
+        settings = {
+          pylsp = {
+            plugins = {
+              pycodestyle = {
+                enabled = true,
+              },
+              pyflakes = {
+                enabled = true,
+              },
+              mccabe = {
+                enabled = true,
+              },
+              autopep8 = {
+                enabled = true,
+              },
+            },
+          },
+        },
       })
     end,
   },
+
+  -- Configure Treesitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          "python",
+          "bash",
+          "html",
+          "javascript",
+          "json",
+          "lua",
+          "markdown",
+          "markdown_inline",
+          "python",
+          "query",
+          "regex",
+          "tsx",
+          "typescript",
+          "vim",
+          "yaml",
+        },
+        highlight = { enable = true },
+        indent = { enable = true },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = "gnn",
+            node_incremental = "grn",
+            scope_incremental = "grc",
+            node_decremental = "grm",
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+            },
+          },
+        },
+      })
+    end,
+  },
+
+  -- Enable Treesitter for Python
+  vim.filetype.add({
+    pattern = {
+      ["\\.pyi?$"] = "python",
+    },
+  })(
+    -- the opts function can also be used to change the default opts:
+    {
+      "nvim-lualine/lualine.nvim",
+      event = "VeryLazy",
+      opts = function(_, opts)
+        table.insert(opts.sections.lualine_x, {
+          function()
+            return "😄"
+          end,
+        })
+      end,
+    }
+  ),
 
   -- or you can return new options to override all the defaults
   {
@@ -195,10 +287,11 @@ return {
     },
   },
 
-  -- toggleterm
+  --[[ toggleterm
   {
     "akinsho/toggleterm.nvim",
     version = "*",
     config = true,
   },
+  ]]
 }
