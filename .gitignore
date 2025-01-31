@@ -6,3 +6,9 @@ debug
 foo.*
 *.log
 data
+<<<<<<< Updated upstream
+=======
+
+lazyvim.json
+lazy-lock.json
+>>>>>>> Stashed changes
