@@ -8,3 +8,6 @@ foo.*
 data
 
 lazyvim.json
+lazy-lock.json
+
+lua_bak/
