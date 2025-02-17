@@ -15,7 +15,13 @@ return {
         insert_mappings = true,
         persist_size = true,
         close_on_exit = true,
-        shell = vim.o.shell,
+        if string.match(shell_cmd, "zsh") then
+          shell_cmd = shell_cmd .. " -l -i"  -- Add -l and -i for zsh
+        elseif string.match(shell_cmd, "bash") then
+          shell_cmd = shell_cmd .. " --login -i" -- Add --login and -i for bash
+        else
+          shell_cmd = shell_cmd .. " -i" -- Add -i for other shells (might not source rc files)
+        end,
         float_opts = {
         	border = "curved",
         	winblend = 0,
@@ -28,6 +34,8 @@ return {
     end,
   },
 }
+-- shell = vim.o.shell,
+
 
 --function _G.set_terminal_keymaps()
 --  local opts = {noremap = true}
