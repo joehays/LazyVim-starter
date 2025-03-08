@@ -2,10 +2,21 @@ return {
   {
     "akinsho/toggleterm.nvim",
     config = function()
+      local shell_cmd = vim.o.shell -- Get the shell from vim options
+      
+      -- Modify shell command outside the setup table
+      if string.match(shell_cmd, "zsh") then
+        shell_cmd = shell_cmd .. " -l -i"  -- Add -l and -i for zsh
+      elseif string.match(shell_cmd, "bash") then
+        shell_cmd = shell_cmd .. " --login -i" -- Add --login and -i for bash
+      else
+        shell_cmd = shell_cmd .. " -i" -- Add -i for other shells
+      end
+      
       require("toggleterm").setup({
         -- Customize options here (optional)
         size = 20, -- Default terminal size
-        open_mapping = [[<leader>\]], -- Keybinding to toggle the terminal 
+        open_mapping = [[<leader>\]], -- Keybinding to toggle the terminal
         direction = "float", -- "horizontal" or "vertical"
         hide_numbers = true,
         shade_filetypes = {},
@@ -15,27 +26,19 @@ return {
         insert_mappings = true,
         persist_size = true,
         close_on_exit = true,
-        if string.match(shell_cmd, "zsh") then
-          shell_cmd = shell_cmd .. " -l -i"  -- Add -l and -i for zsh
-        elseif string.match(shell_cmd, "bash") then
-          shell_cmd = shell_cmd .. " --login -i" -- Add --login and -i for bash
-        else
-          shell_cmd = shell_cmd .. " -i" -- Add -i for other shells (might not source rc files)
-        end,
+        shell = shell_cmd, -- Use the modified shell command
         float_opts = {
-        	border = "curved",
-        	winblend = 0,
-        	highlights = {
-        		border = "Normal",
-        		background = "Normal",
-        		},
-        	},
+          border = "curved",
+          winblend = 0,
+          highlights = {
+            border = "Normal",
+            background = "Normal",
+          },
+        },
       })
     end,
   },
 }
--- shell = vim.o.shell,
-
 
 --function _G.set_terminal_keymaps()
 --  local opts = {noremap = true}
