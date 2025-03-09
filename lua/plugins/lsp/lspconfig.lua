@@ -74,11 +74,12 @@ return {
 						pylsp = {
 							-- Disable Python linters
 							plugins = {
-								pycodestyle = { enabled = false },
-								pyflakes    = { enabled = false },
-								pylint      = { enabled = false },
-								mccabe      = { enabled = false },
-								rope_completion = { enabled = false },
+								pycodestyle = { enabled = true },
+								pyflakes    = { enabled = true },
+								pylint      = { enabled = true },
+								mccabe      = { enabled = true },
+								autopep8    = { enabled = true },
+								rope_completion = { enabled = true },
 							},
 						},
 					},
@@ -100,3 +101,4 @@ return {
 		})
 	end
 }
+
