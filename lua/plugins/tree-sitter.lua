@@ -33,10 +33,10 @@ return {
         incremental_selection = {
           enable = true,
           keymaps = {
-            init_selection = "gnn",
-            node_incremental = "grn",
-            scope_incremental = "grc",
-            node_decremental = "grm",
+            init_selection =    "<Leader>ss",
+            node_incremental =  "<Leader>si",
+            scope_incremental = "<Leader>sc",
+            node_decremental =  "<Leader>sd",
           },
         },
         textobjects = {
@@ -48,6 +48,12 @@ return {
               ["if"] = "@function.inner",
               ["ac"] = "@class.outer",
               ["ic"] = "@class.inner",
+              ["as"] = { query = "@scope", query_group = "locals", desc = "Select language scope"},
+            },
+            selection_modes = {
+              ['@parameter.outer'] = 'v', -- charwise
+              ['@function.outer'] = 'v', -- charwise (was 'V' linewise)
+              ['@class.outer'] = '', -- blockwise
             },
           },
         },
