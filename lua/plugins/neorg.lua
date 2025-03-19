@@ -17,7 +17,9 @@ return {
           ["core.dirman"] = {
             config = {
               workspaces = {
-                notes = "~/notes",
+                org-joe = "~/notes/org-joe",
+                org-tech = "~/notes/org-tech",
+                org-scripture-power = "~/notes/org-scripture-power",
               },
             },
           },

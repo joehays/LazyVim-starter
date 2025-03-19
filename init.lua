@@ -6,6 +6,8 @@ vim.o.guifont = "FiraCodeNerdFontMono-Regular:h12" -- Replace "Fira Code:h12" wi
 --vim.o.guifontwidth = auto -- Adjust font width automatically
 --vim.o.guifontheight = auto -- Adjust font height automatically
 
+-- opts.rocks.hererocks = true -- REALLY JUSTT NEED TO FIX LAROCKA
+
 import = "lazyvim.plugins.extras.lang.typescript"
 
 -- use mini.starter instead of alpha

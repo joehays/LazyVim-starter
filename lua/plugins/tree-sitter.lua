@@ -3,6 +3,22 @@ return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
+      -- Force Treesitter to use specific compilers
+      require('nvim-treesitter.install').compilers = { "clang", "gcc", "c++" }
+
+      -- Explicitly override Neorg's parser installation settings
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+      parser_config.norg.install_info = {
+        url = "https://github.com/nvim-neorg/tree-sitter-norg",
+        files = { "src/parser.c", "src/scanner.cc" },
+        branch = "main",
+        generate_requires_npm = false,
+        requires_generate_from_grammar = false,
+        command = { "cc", "-o", "parser.so", "-I./src", "src/parser.c", "-Os", "-std=gcc-14", "-shared", "-fPIC",
+                    "&&",
+                    "c++", "-o", "scanner.so", "-I./src", "src/scanner.cc", "-Os", "-std=c++14", "-shared", "-fPIC" }
+      }
+
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
           "c",
