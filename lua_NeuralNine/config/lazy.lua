@@ -20,6 +20,9 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- test 
+vim.keymap.set('n', '<LocalLeader>test', ':echo "LocalLeader works"<CR>')
+
 -- Load plugins
 require("lazy").setup({
   spec = {
