@@ -211,6 +211,7 @@ return {
           ["core.promo"] = {},          -- For list promotion/demotion
           ["core.itero"] = {},          -- For list iterations
           
+          ["core.dirman"] = {},
           ["core.keybinds"] = {
             config = {
               default_keybinds = false,  -- Disable default keybindings
