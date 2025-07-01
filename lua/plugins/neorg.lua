@@ -262,6 +262,20 @@ return {
                   vim.notify("Neorg custom keybindings have been configured")
               end
             },
+              config = {
+                  hook = function(keybinds)
+                      local leader = "<LocalLeader>"
+                      keybinds.map("norg", "n", leader .. "td", "<Plug>(neorg.qol.todo-items.todo.task-done)")
+                      keybinds.map("norg", "n", leader .. "tu", "<Plug>(neorg.qol.todo-items.todo.task-undone)")
+                      keybinds.map("norg", "n", leader .. "tp", "<Plug>(neorg.qol.todo-items.todo.task-pending)")
+                      keybinds.map("norg", "n", leader .. "th", "<Plug>(neorg.qol.todo-items.todo.task-on_hold)")
+                      keybinds.map("norg", "n", leader .. "tc", "<Plug>(neorg.qol.todo-items.todo.task-cancelled)")
+                      keybinds.map("norg", "n", leader .. "tr", "<Plug>(neorg.qol.todo-items.todo.task-recurring)")
+                      keybinds.map("norg", "n", leader .. "ti", "<Plug>(neorg.qol.todo-items.todo.task-important)")
+                      keybinds.map("norg", "n", leader .. "tR", "<Plug>(neorg.qol.todo-items.todo.task-cycle-reverse)") -- Custom binding for reverse cycle
+                      keybinds.map("norg", "n", leader .. "t<Space>", "<Plug>(neorg.qol.todo-items.todo.task-cycle)")
+                  end
+              }
           },
         },
       })
@@ -355,3 +369,5 @@ return {
 --     config = true,
 --   },
 -- }
+
+-- keybinds.map("norg", "n", "<C-Space>", "<Plug>(neorg.qol.todo-items.todo.task-cycle)")

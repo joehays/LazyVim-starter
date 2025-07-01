@@ -54,6 +54,7 @@ return {
 			-- Lua LSP
 			['lua_ls'] = function()
 				lspconfig.lua_ls.setup({
+          cmd = { "/data/data/com.termux/files/usr/bin/lua-language-server" },  -- Use system-installed binary
 					capabilities = capabilities,
 					handlers = no_diagnostics,
 					settings = {
@@ -89,6 +90,7 @@ return {
 			-- C LSP
 			['clangd'] = function()
 				lspconfig.clangd.setup({
+                    cmd = { "/data/data/com.termux/files/usr/bin/clangd" },  -- Use system clangd
 					capabilities = capabilities,
 					handlers = no_diagnostics,
 					settings = {

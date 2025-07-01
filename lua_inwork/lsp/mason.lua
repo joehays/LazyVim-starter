@@ -15,10 +15,12 @@ return {
 	  	local mason_tool_installer = require('mason-tool-installer')
 	  	mason.setup({
         ensutre_installed = {
+          --[[
           "stylua",
-          "shellcheck",
           "shfmt",
           "flake8",
+          "shellcheck",
+          ]]
         },
 	  		ui = {
 	  			icons = {
@@ -34,15 +36,17 @@ return {
 		  mason_lspconfig.setup({
 			  -- LSP servers to install automatically
 			  ensure_installed = {
-			  	'clangd',
 			  	'cssls',
-          'flake8',
 			  	'html',
-			  	'lua_ls',
 			  	'pylsp',
+          --[[
+			  	'lua_ls',
+			  	'clangd',
           'shellcheck',
+          'flake8',
           'shfmt',
           'stylua',
+          ]]
 			  },
 		  })
 		  mason_tool_installer.setup({
