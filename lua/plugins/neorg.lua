@@ -13,7 +13,7 @@ return {
       if vim.g.maplocalleader == nil then
         vim.g.maplocalleader = "\\"
       end
-      
+
       require("neorg").setup({
         load = {
           ["core.defaults"] = {},
@@ -30,52 +30,44 @@ return {
               default_workspace = "org-joe",
             },
           },
-          
+
           -- Add these core modules for functionality
-          ["core.esupports.hop"] = {},  -- For link navigation
-          ["core.promo"] = {},          -- For list promotion/demotion
-          
+          ["core.esupports.hop"] = {}, -- For link navigation
+          ["core.promo"] = {}, -- For list promotion/demotion
+
           ["core.keybinds"] = {
             config = {
-              default_keybinds = false,  -- Now disable default keybindings
+              default_keybinds = false, -- Now disable default keybindings
               neorg_leader = "<LocalLeader>",
               hook = function(keybinds)
-                  -- Define your custom keybindings - starting with just todo items
-                  keybinds.map_event_to_mode("norg", {
-                    n = { -- Normal mode
-                      -- Todo items
-                      { "<LocalLeader>td", "core.qol.todo_items.todo.task-done" },
-                      { "<LocalLeader>tu", "core.qol.todo_items.todo.task-undone" },
-                      { "<LocalLeader>tp", "core.qol.todo_items.todo.task-pending" },
-                      { "<LocalLeader>th", "core.qol.todo_items.todo.task-on_hold" },
-                      { "<LocalLeader>tc", "core.qol.todo_items.todo.task-cancelled" },
-                      { "<LocalLeader>tr", "core.qol.todo_items.todo.task-recurring" },
-                      { "<LocalLeader>ti", "core.qol.todo_items.todo.task-important" },
-                      { "<C-Space>", "core.qol.todo_items.todo.task-cycle" },
-                      
-                      -- Links
-                      { "<CR>", "core.esupports.hop.hop-link" },
-                      
-                      -- Lists
-                      { "<Tab>", "core.promo.promote" },
-                      { "<S-Tab>", "core.promo.demote" },
-                    },
-                  })
-                  
-                  -- Log to verify keybindings are being set
-                  vim.notify("Neorg custom keybindings have been configured")
-              end
+                -- Define your custom keybindings - starting with just todo items
+                keybinds.map_event_to_mode("norg", "n", {
+                  { "<LocalLeader>td", "core.qol.todo_items.todo.task-done" },
+                  { "<LocalLeader>tu", "core.qol.todo_items.todo.task-undone" },
+                  { "<LocalLeader>tp", "core.qol.todo_items.todo.task-pending" },
+                  { "<LocalLeader>th", "core.qol.todo_items.todo.task-on_hold" },
+                  { "<LocalLeader>tc", "core.qol.todo_items.todo.task-cancelled" },
+                  { "<LocalLeader>tr", "core.qol.todo_items.todo.task-recurring" },
+                  { "<LocalLeader>ti", "core.qol.todo_items.todo.task-important" },
+                  { "<C-Space>", "core.qol.todo_items.todo.task-cycle" },
+                  { "<CR>", "core.esupports.hop.hop-link" },
+                  { "<Tab>", "core.promo.promote" },
+                  { "<S-Tab>", "core.promo.demote" },
+                })
+                -- Log to verify keybindings are being set
+                vim.notify("Neorg custom keybindings have been configured")
+              end,
             },
           },
         },
       })
-      
+
       -- Add a VimEnter autocmd to run the sync-parsers command after Neovim has fully started
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
-          vim.defer_fn(function() 
+          vim.defer_fn(function()
             vim.cmd("Neorg sync-parsers")
-          end, 1000)  -- Wait 1 second after Vim starts
+          end, 1000) -- Wait 1 second after Vim starts
         end,
         once = true,
       })
@@ -170,7 +162,6 @@ return {
   },
 }
 ]]
-
 
 --[[
 return {
@@ -294,7 +285,6 @@ return {
 }
 ]]
 
-
 --[[
   {
     "nvim-neorg/neorg",
@@ -323,32 +313,29 @@ return {
   }, 
 ]]
 
-
-
-
-  -- {
-  --     "nvim-neorg/neorg",
-  --     lazy = false,
-  --     version = "*",
-  --     config = function()
-  --       require("neorg").setup {
-  --         load = {
-  --           ["core.defaults"] = {},
-  --           ["core.concealer"] = {},
-  --           ["core.dirman"] = {
-  --             config = {
-  --               workspaces = {
-  --                 notes = "~/notes",
-  --               },
-  --               default_workspace = "notes",
-  --             },
-  --           },
-  --         },
-  --       }
-  --       vim.wo.foldlevel = 99
-  --       vim.wo.conceallevel = 2
-  --     end,
-  -- },
+-- {
+--     "nvim-neorg/neorg",
+--     lazy = false,
+--     version = "*",
+--     config = function()
+--       require("neorg").setup {
+--         load = {
+--           ["core.defaults"] = {},
+--           ["core.concealer"] = {},
+--           ["core.dirman"] = {
+--             config = {
+--               workspaces = {
+--                 notes = "~/notes",
+--               },
+--               default_workspace = "notes",
+--             },
+--           },
+--         },
+--       }
+--       vim.wo.foldlevel = 99
+--       vim.wo.conceallevel = 2
+--     end,
+-- },
 
 --  {
 --    "nvim-neorg/neorg",
@@ -359,7 +346,6 @@ return {
 --      "nvim-lua/plenary.nvim",
 --    },
 --  },
-
 
 -- return {
 --   {
