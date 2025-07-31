@@ -1,5 +1,6 @@
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
+vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 -- specify fonts to use
@@ -17,7 +18,6 @@ import = "lazyvim.plugins.extras.ui.mini-starter"
 
 -- add jsonls and schemastore packages, and setup treesitter for json, json5 and jsonc
 import = "lazyvim.plugins.extras.lang.json"
-<<<<<<< HEAD
 ]]
 
 -- make clipboard integration easier!
