@@ -1,5 +1,7 @@
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
+
+-- define LEADER keymaps
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
