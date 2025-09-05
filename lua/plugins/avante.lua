@@ -1,3 +1,192 @@
+-- avante.lua ? NIPRgpt (OpenAI-style) + Ollama embeddings + MCP, with endpoint autodetect + safe quoting
+return {
+  {
+    "ravitemer/mcphub.nvim",
+    enabled = false, -- Add this line to disable the plugin
+    lazy = true,
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("mcphub").setup({})
+    end,
+  },
+
+  {
+    "yetone/avante.nvim",
+    enabled = false, -- Add this line to disable the plugin
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "ravitemer/mcphub.nvim",
+    },
+
+    opts = function()
+      --------------------------------------------------------------------------
+      -- Smart detection for an embed endpoint the *RAG container* can reach
+      --------------------------------------------------------------------------
+      local function trim(s) return (s or ""):gsub("%s+$", "") end
+      local function sh(cmd)
+        local h = io.popen(cmd)
+        if not h then return nil end
+        local out = h:read("*a")
+        h:close()
+        return trim(out or "")
+      end
+
+      local endpoint = os.getenv("OLLAMA_OPENAI_ENDPOINT")
+      if not endpoint or endpoint == "" then
+        if sh("getent hosts host.containers.internal >/dev/null 2>&1; echo $?") == "0" then
+          endpoint = "http://host.containers.internal:11434/v1"
+        elseif sh("getent hosts host.docker.internal >/dev/null 2>&1; echo $?") == "0" then
+          endpoint = "http://host.docker.internal:11434/v1"
+        else
+          local ip = sh([[ip route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}']])
+          if ip == "" then ip = sh([[hostname -I 2>/dev/null | awk '{print $1}']]) end
+          endpoint = (ip ~= "" and ("http://" .. ip .. ":11434/v1")) or "http://127.0.0.1:11434/v1"
+        end
+      end
+
+      -- Ensure Avante sees a token var for the embedder (value doesn't matter for Ollama)
+      local embed_api_key_env = "OLLAMA_API_KEY"
+      if not os.getenv(embed_api_key_env) then
+        embed_api_key_env = nil
+      end
+
+      --------------------------------------------------------------------------
+      -- Providers
+      --------------------------------------------------------------------------
+      local provider = vim.env.AVANTE_PROVIDER or "openai" -- your NIPRgpt is OpenAI-compatible
+      local COMMON = { timeout = 120000, temperature = 0, max_tokens = 8192 }
+
+      local OPENAI = vim.tbl_deep_extend("force", COMMON, {
+        endpoint = vim.env.OPENAI_API_BASE or "https://api.niprgpt.mil/v1",
+        model    = vim.env.OPENAI_CHAT_MODEL or "Anthropic Sonnet 3.7",
+        api_key  = "OPENAI_API_KEY",
+      })
+
+      local CLAUDE_SONNET_37_MODEL = vim.env.CLAUDE_SONNET_37_MODEL or "claude-3-7-sonnet-latest"
+      local CLAUDE_SONNET_40_MODEL = vim.env.CLAUDE_SONNET_40_MODEL or "claude-4-0-sonnet-latest"
+      local CLAUDE_BASE = { endpoint = vim.env.ANTHROPIC_API_BASE or "https://api.anthropic.com" }
+      local CLAUDE_SONNET_37 = vim.tbl_deep_extend("force", COMMON, { endpoint = CLAUDE_BASE.endpoint, model = CLAUDE_SONNET_37_MODEL })
+      local CLAUDE_SONNET_40 = vim.tbl_deep_extend("force", COMMON, { endpoint = CLAUDE_BASE.endpoint, model = CLAUDE_SONNET_40_MODEL })
+      local claude_profile = (vim.env.AVANTE_CLAUDE_PROFILE == "sonnet40") and CLAUDE_SONNET_40 or CLAUDE_SONNET_37
+
+      --------------------------------------------------------------------------
+      -- RAG: NIPRgpt LLM + Ollama embeddings (auto-detected endpoint)
+      --------------------------------------------------------------------------
+      local RAG = {
+        enabled    = true,
+        host_mount = vim.loop.cwd(), -- current project only
+
+        provider = (provider == "claude") and "claude" or "openai",
+        endpoint = (provider == "claude") and CLAUDE_BASE.endpoint or OPENAI.endpoint,
+
+        -- LLM that synthesizes the final answer using retrieved chunks
+        llm = (provider == "claude")
+          and { provider = "claude", endpoint = CLAUDE_BASE.endpoint, api_key = "ANTHROPIC_API_KEY", model = claude_profile.model, extra = nil }
+          or  { provider = "openai", endpoint = OPENAI.endpoint,       api_key = "OPENAI_API_KEY",    model = OPENAI.model,          extra = nil },
+
+        -- Embeddings via Ollama's OpenAI-compatible API
+        embed = (function()
+          local t = { provider = "openai", endpoint = endpoint, model = vim.env.OLLAMA_EMBED_MODEL or "bge-m3", extra = nil }
+          if embed_api_key_env then t.api_key = embed_api_key_env else t.api_key_name = "cmd:printf local" end
+          return t
+        end)(),
+      }
+
+      -- Debug prints
+      vim.schedule(function()
+        pcall(vim.notify, "[Avante/RAG] embed endpoint = " .. (RAG.embed and (RAG.embed.endpoint or "nil") or "nil"))
+        pcall(vim.notify, "[Avante/RAG] host_mount     = " .. (RAG.host_mount or "nil"))
+        pcall(vim.notify, "[Avante/RAG] provider/endpoint (LLM) = " .. (RAG.provider or "?") .. " / " .. (RAG.endpoint or "?"))
+        if vim.print then vim.print("[Avante/RAG] full config:", RAG) end
+      end)
+
+      return {
+        provider = provider,
+        use_project_instructions = true,
+        openai = OPENAI,
+        claude = claude_profile,
+        rag_service = RAG,
+        custom_tools = (function()
+          local ok, ext = pcall(require, "mcphub.extensions.avante")
+          return (ok and ext and ext.mcp_tool) and { ext.mcp_tool() } or {}
+        end)(),
+        system_prompt = (function()
+          local ok, hub = pcall(require, "mcphub")
+          if ok and hub and hub.get_hub_instance then
+            local inst = hub.get_hub_instance()
+            if inst and inst.get_active_servers_prompt then
+              return inst:get_active_servers_prompt()
+            end
+          end
+          return ""
+        end)(),
+      }
+    end,
+
+    -- IMPORTANT: do env + monkey-patch *after* plugin loads and *before* first launch
+    config = function(_, opts)
+      -- Make port/mount configurable (use your defaults)
+      vim.env.AVANTE_RAG_PORT       = vim.env.AVANTE_RAG_PORT       or "30250"
+      vim.env.AVANTE_RAG_HOST_MOUNT = vim.env.AVANTE_RAG_HOST_MOUNT or vim.loop.cwd()
+
+      -- Setup Avante with the opts table above
+      require("avante").setup(opts)
+
+      --[[
+      -- Monkey-patch the sidecar launcher so envs with spaces are quoted safely
+      local ok, rag = pcall(require, "avante.rag_service")
+      if ok and rag and rag.launch then
+        local old_launch = rag.launch
+        rag.launch = function(self, o)
+          -- ensure RAG_LLM_MODEL is quoted so docker gets a single token
+          if o and o.rag_service and o.rag_service.llm and o.rag_service.llm.model then
+            local m = o.rag_service.llm.model
+            if m and m ~= "" and not m:match('^".*"$') and not m:match("^'.*'$") then
+              o.rag_service.llm.model = string.format("%q", m)
+            end
+          end
+          return old_launch(self, o)
+        end
+      end
+
+      ]]
+      -- place inside the avante.nvim spec `config = function(_, opts)` AFTER require("avante").setup(opts)
+      local ok, rag = pcall(require, "avante.rag_service")
+      if ok and rag and rag.launch then
+        local old = rag.launch
+        rag.launch = function(self, o)
+          o = vim.deepcopy(o or {})
+          -- enforce env-driven port and host mount
+          local port = tonumber(vim.env.AVANTE_RAG_PORT or "20250")
+          o.__force_port = port
+          o.__force_host_mount = vim.env.AVANTE_RAG_HOST_MOUNT
+      
+          -- ensure model is quoted
+          if o.rag_service and o.rag_service.llm and o.rag_service.llm.model then
+            local m = o.rag_service.llm.model
+            if not m:match('^".*"$') and not m:match("^'.*'$") then
+              o.rag_service.llm.model = string.format("%q", m)
+            end
+          end
+      
+          -- call original
+          local id = old(self, o)
+      
+          -- if there is a built-in health wait, we can?t intercept easily;
+          -- but many builds look at __force_port/__force_host_mount we passed through.
+          return id
+        end
+      end
+    end,
+  },
+}
+
+
+
+
+
+--[[
 -- Define the function to read the API key from a file OUTSIDE the plugin table
 local function read_api_key_from_file(filename)
   local file = io.open(filename, "r")
@@ -145,6 +334,7 @@ return {
     },
   },
 }
+]]
 
 -- -- Define the function to read the API key from a file OUTSIDE the plugin table
 -- local function read_api_key_from_file(filename)
