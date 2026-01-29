@@ -4,7 +4,9 @@ return {
     --enabled = false,
     --lazy = false, -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
     event = "FileType norg",
-    version = "*", -- Pin Neorg to the latest stable release
+    --version = "*", -- Pin Neorg to the latest stable release
+    --version = "main",
+    version = "87242d45",
     -- dependencies = { "hrsh7th/nvim-cmp", },
     dependencies = { "benlubas/neorg-interim-ls", "nvim-treesitter/nvim-treesitter" }, -- Essential for blink-cmp compatibility
 
@@ -54,12 +56,12 @@ return {
           --          ["core.integration.image"] = {
           --            config = {},
           --          },
-          ["core.integrations.treesitter"] = {
-            config = {
-              -- Enable Tree-sitter for Neorg. This usually happens automatically
-              -- if nvim-treesitter is set up correctly.
-            },
-          },
+          -- ["core.integrations.treesitter"] = {
+          --   config = {
+          --     -- Enable Tree-sitter for Neorg. This usually happens automatically
+          --     -- if nvim-treesitter is set up correctly.
+          --   },
+          -- },
           --          ["core.latex.renderer"] = {
           --            config = {
           --                conceal = true,

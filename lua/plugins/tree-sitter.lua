@@ -74,7 +74,7 @@ return {
       },
     },
     config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
+      require("nvim-treesitter").setup(opts)
 
       -- Add the norg parser manually if auto_install doesn't pick it up
       -- This part might be crucial for 'norg' if it's not a standard parser.
